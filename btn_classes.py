@@ -149,6 +149,7 @@ class DataBase:
         await notifies.turn_on_notif(bot, message)
 
     async def db_before_confirm_task(self, bot, message):
+
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('/confirm')
         btn2 = types.KeyboardButton('/not_confirm')

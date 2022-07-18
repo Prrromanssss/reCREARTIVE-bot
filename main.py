@@ -117,6 +117,7 @@ async def get_private_message(message):
 
     if btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
         btn_classes.db_conn.msgs[message.chat.id] = message
+        btn_classes.db_conn.stack_write_db_task[message.chat.id] = False
         await btn_classes.db_conn.db_before_confirm_task(bot, message)
 
     if (message.chat.id in btn_classes.notifies.flag_for_sending
