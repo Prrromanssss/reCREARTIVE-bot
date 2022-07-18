@@ -66,9 +66,9 @@ async def check_callback(callback):
     if callback.data == 'Подтвердить':
         user_message = callback.message.text.split('\n')
         user_id = int(user_message[1].split(':')[-1][1:])
-        user_name = user_message[2].split(':')[-1][1:] if user_message[2] != 'None' else None
-        user_surname = user_message[3].split(':')[-1][1:] if user_message[3] != 'None' else None
-        username = user_message[4].split(':')[-1][1:] if user_message[4] != 'None' else None
+        user_name = user_message[2].split(':')[-1][1:] if user_message[2].split(':')[-1][1:] != 'None' else None
+        user_surname = user_message[3].split(':')[-1][1:] if user_message[3].split(':')[-1][1:] != 'None' else None
+        username = user_message[4].split(':')[-1][1:] if user_message[4].split(':')[-1][1:] != 'None' else None
         user_msg = ''.join(user_message[5:-1])[''.join(user_message[5:-1]).index('Задание: ') + len('Задание: '):]
         await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
                                                 user_msg)
