@@ -3,14 +3,14 @@ import psycopg2
 import asyncio
 from main import bot
 import datetime as dt
-
+from config_data import DBI_URI
 
 date = btn_classes.dt.datetime.now(btn_classes.timezone('Europe/Moscow'))
 
 
 async def try_send_schedule():
     while True:
-        conn = psycopg2.connect(btn_classes.db_conn.name, ssl_mode='require')
+        conn = psycopg2.connect(DBI_URI, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = 'SELECT DISTINCT user_id, utc, time FROM db_creart ;'
         cursor.execute(sqlite_select_query)
