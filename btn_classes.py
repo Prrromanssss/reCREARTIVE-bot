@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import json
 from telebot import types
 from random import choice
@@ -6,7 +6,7 @@ import datetime as dt
 from tzwhere import tzwhere as tz
 import pytz
 from pytz import timezone
-from config_data import chat_id_moderate
+from config_data import chat_id_moderate, DBI_URI
 
 
 class Notify:
@@ -15,7 +15,7 @@ class Notify:
         self.already_get = {}
 
     async def local_time(self, bot, message):
-        conn = sqlite3.connect(db_conn.name, check_same_thread=False)
+        conn = psycopg2.connect(db_conn.name, ssl_mode='require')
         cursor = conn.cursor()
         sqlite_select_query = 'SELECT * FROM db_creart WHERE user_id = ?'
 
@@ -51,7 +51,7 @@ class DataBase:
 
     async def db_get_task(self, bot, message):
         chat_id = message if isinstance(message, int) else message.chat.id
-        conn = sqlite3.connect(self.name, check_same_thread=False)
+        conn = psycopg2.connect(self.name, ssl_mode='require')
         cursor = conn.cursor()
         sqlite_select_query = 'SELECT * FROM db_creart ORDER BY RANDOM() LIMIT 1;'
         cursor.execute(sqlite_select_query)
@@ -71,7 +71,7 @@ class DataBase:
         await stick.send_stickers(bot, message)
 
     async def db_write_task(self, bot, message, *args):
-        conn = sqlite3.connect(self.name, check_same_thread=False)
+        conn = psycopg2.connect(self.name, ssl_mode='require')
         cursor = conn.cursor()
         sqlite_select_query = 'SELECT * FROM db_creart WHERE user_id = ?'
         cursor.execute(sqlite_select_query, (message.chat.id,))
@@ -104,7 +104,7 @@ class DataBase:
         await stick.send_stickers(bot, user_id)
 
     async def db_set_time(self, bot, message):
-        conn = sqlite3.connect(self.name, check_same_thread=False)
+        conn = psycopg2.connect(self.name, ssl_mode='require')
         cursor = conn.cursor()
         sqlite_select_query = 'SELECT * FROM db_creart WHERE user_id = ?'
         cursor.execute(sqlite_select_query, (message.chat.id,))
@@ -125,7 +125,7 @@ class DataBase:
         await stick.send_stickers(bot, message)
 
     async def db_update_task(self, bot, message):
-        conn = sqlite3.connect(self.name, check_same_thread=False)
+        conn = psycopg2.connect(self.name, ssl_mode='require')
         cursor = conn.cursor()
         lng = message.location.longitude
         lat = message.location.latitude
@@ -245,7 +245,7 @@ def init_btns():
     return markup
 
 
-db_conn = DataBase('dbsqlite3.db')
+db_conn = DataBase(DBI_URI)
 stick = Stickers()
 notifies = Notify()
 set_of_funny_msg = ['Удачи в выполнении!', 'Надеюсь у тебя все получится!',
