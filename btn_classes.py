@@ -79,6 +79,7 @@ class DataBase:
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id}'
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
+        await bot.send_message(message.chat.id, records)
         user_id = message.from_user.id if not args else args[0]
         user_name = message.from_user.first_name if not args else args[1]
         user_surname = message.from_user.last_name if not args else args[2]
@@ -86,6 +87,7 @@ class DataBase:
         user_msg = message.text if not args else args[4]
         cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id} AND message IS NULL')
         empty_msg = cursor.fetchall()
+        await bot.send_message(message.chat.id, empty_msg)
         if empty_msg:
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET message = {user_msg} WHERE user_id = {message.chat.id}'
                            f' AND message IS NULL',)
@@ -96,6 +98,7 @@ class DataBase:
                            f' time)'
                            f' VALUES ({user_id}, {user_name}, {user_surname}, {username}, {user_msg}, {utc}, {time})')
         else:
+            await bot.send_message(message.chat.id, 'the last if')
             cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username, message) VALUES'
                            f' ({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
         conn.commit()
