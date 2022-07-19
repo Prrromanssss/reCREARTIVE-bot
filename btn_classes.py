@@ -31,7 +31,7 @@ class Notify:
         times = []
         markup.add(types.KeyboardButton('/help'))
         for time in [f'0{i}:00' if i < 10 else f'{i}:00' for i in range(0, 24)]:
-            times.append(types.KeyboardButton(time))
+            times.append(types.InlineKeyboardButton(time))
         markup.add(*(i for i in times))
         self.flag_for_sending[message.chat.id] = True
         await bot.send_message(message.from_user.id, 'Выберите время для отправки сообщений',
