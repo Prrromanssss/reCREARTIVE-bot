@@ -50,6 +50,7 @@ class DataBase:
 
     async def db_get_task(self, bot, message):
         chat_id = message if isinstance(message, int) else message.chat.id
+        self.stack_write_db_task[chat_id] = False
         conn = psycopg2.connect(self.name, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} ORDER BY RANDOM() LIMIT 1;'
@@ -115,17 +116,11 @@ class DataBase:
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
         cursor.execute(sqlite_select_query, (message.chat.id,))
 
-        try:
-            utc = int(cursor.fetchall()[0][-2])
-        except IndexError:
-            await bot.send_message(message.chat.id, '1')
+        utc = int(cursor.fetchall()[0][-2])
         differ_time = dt.timedelta(hours=abs(utc))
         dt_now = dt.datetime.now(timezone('Europe/Moscow'))
-        try:
-            dt_now = dt.datetime(year=dt_now.year, month=dt_now.month, day=dt_now.day,
-                                 hour=int(data.split(':')[0]), minute=int(data.split(':')[1]))
-        except IndexError:
-            await bot.send_message(message.chat.id, '2')
+        dt_now = dt.datetime(year=dt_now.year, month=dt_now.month, day=dt_now.day,
+                             hour=int(data.split(':')[0]), minute=int(data.split(':')[1]))
         if utc >= 0:
             dt_time = dt_now + differ_time
         else:
@@ -204,11 +199,10 @@ class Stickers:
     async def send_stickers(self, bot, message):
         chat_id = message if isinstance(message, int) else message.chat.id
         data = open_file('data_stick.json')
-        try:
-            if data and str(chat_id) in data and data[str(chat_id)]:
-                await bot.send_sticker(chat_id, choice(list(data[str(chat_id)].values())))
-        except IndexError:
-            await bot.send_message(message.chat.id, '3')
+
+        if data and str(chat_id) in data and data[str(chat_id)]:
+            await bot.send_sticker(chat_id, choice(list(data[str(chat_id)].values())))
+
 
     async def turn_stick(self, bot, message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
