@@ -17,9 +17,9 @@ class Notify:
     async def local_time(self, bot, message):
         conn = psycopg2.connect(db_conn.name, sslmode='require')
         cursor = conn.cursor()
-        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id}'
+        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
 
-        cursor.execute(sqlite_select_query)
+        cursor.execute(sqlite_select_query, (message.chat.id,))
         markup = types.ReplyKeyboardRemove()
         text = 'Пришлите нам свое местоположение. \n\n'\
                'P.s.: "скрепка" в левом нижнем углу (так же, как и фото отправлять)'
@@ -76,8 +76,8 @@ class DataBase:
     async def db_write_task(self, bot, message, *args):
         conn = psycopg2.connect(self.name, sslmode='require')
         cursor = conn.cursor()
-        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id}'
-        cursor.execute(sqlite_select_query)
+        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
+        cursor.execute(sqlite_select_query, (message.chat.id,))
         records = cursor.fetchall()
 
         user_id = message.from_user.id if not args else args[0]
@@ -85,21 +85,20 @@ class DataBase:
         user_surname = message.from_user.last_name if not args else args[2]
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
-        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id} AND message IS NULL')
+        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND "message" IS NULL', (message.chat.id,))
         empty_msg = cursor.fetchall()
         if empty_msg:
-            await bot.send_message(message.chat.id, empty_msg)
-            cursor.execute(f'UPDATE {DB_TABLE_NAME} SET message = {user_msg} WHERE user_id = {message.chat.id}'
-                           f' AND message IS NULL')
+            val = (user_msg, message.chat.id)
+            cursor.execute(f'UPDATE {DB_TABLE_NAME} SET "message" = %s WHERE user_id = %s'
+                           f' AND "message" IS NULL', val)
         elif records:
-            await bot.send_message(message.chat.id, records)
             utc, time = records[0][-2], dt.datetime(*map(int, ''.join(records[0][-1].split()[0]).split('-')),
                                                     *map(int, ''.join(records[0][-1].split()[1]).split(':')))
-            cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username, message, utc,'
+            val = (user_id, user_name, user_surname, username, user_msg, utc, time)
+            cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, "user_name", "user_surname", "username", "message", utc,'
                            f' time)'
-                           f' VALUES ({user_id}, {user_name}, {user_surname}, {username}, {user_msg}, {utc}, {time})')
+                           f' VALUES (%s, %s, %s, %s, %s, %s, %s)', val)
         else:
-            await bot.send_message(message.chat.id, f'({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
             val = (user_id, user_name, user_surname, username, user_msg)
             cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, "user_name", "user_surname", "username", "message") VALUES'
                            f' (%s, %s, %s, %s, %s)', val)
@@ -114,8 +113,8 @@ class DataBase:
     async def db_set_time(self, bot, message):
         conn = psycopg2.connect(self.name, sslmode='require')
         cursor = conn.cursor()
-        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id}'
-        cursor.execute(sqlite_select_query)
+        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
+        cursor.execute(sqlite_select_query, (message.chat.id,))
         utc = int(cursor.fetchall()[0][-2])
         differ_time = dt.timedelta(hours=abs(utc))
         dt_now = dt.datetime.now(timezone('Europe/Moscow'))
@@ -126,7 +125,7 @@ class DataBase:
         else:
             dt_time = dt_now - differ_time
 
-        cursor.execute(f'UPDATE {DB_TABLE_NAME} SET time = {dt_time} WHERE user_id = {message.chat.id}')
+        cursor.execute(f'UPDATE {DB_TABLE_NAME} SET time = %s WHERE user_id = %s', (dt_time, message.chat.id))
         conn.commit()
         markup = init_btns()
         await bot.send_message(message.from_user.id, 'Время выставлено!', reply_markup=markup)
@@ -141,17 +140,17 @@ class DataBase:
         timezone_str = tzwhere.tzNameAt(lat, lng)
         timezone_str = pytz.timezone(timezone_str)
         differ_int = int(dt.datetime.now(timezone_str).hour - dt.datetime.now(timezone('Europe/Moscow')).hour)
-        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = {message.chat.id}'
-        cursor.execute(sqlite_select_query)
+        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
+        cursor.execute(sqlite_select_query, (message.chat.id,))
         if not cursor.fetchall():
             user_id = message.from_user.id
             user_name = message.from_user.first_name
             user_surname = message.from_user.last_name
             username = message.from_user.username
-            sqlite_insert_query = f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username) VALUES' \
-                                  f' ({user_id}, {user_name}, {user_surname}, {username})'
-            cursor.execute(sqlite_insert_query)
-        cursor.execute(f'UPDATE {DB_TABLE_NAME} SET utc = {differ_int} WHERE user_id = {message.chat.id}')
+            sqlite_insert_query = f'INSERT INTO {DB_TABLE_NAME} (user_id, "user_name", "user_surname", "username") VALUES' \
+                                  f' (%s, %s, %s, %s)'
+            cursor.execute(sqlite_insert_query, (user_id, user_name, user_surname, username))
+        cursor.execute(f'UPDATE {DB_TABLE_NAME} SET utc = %s WHERE user_id = %s', (differ_int, message.chat.id))
         conn.commit()
         await bot.send_message(message.chat.id, 'Ваша геопозиция обновлена!')
         await notifies.turn_on_notif(bot, message)
