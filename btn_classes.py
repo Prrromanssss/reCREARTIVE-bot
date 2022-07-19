@@ -96,12 +96,13 @@ class DataBase:
         user_surname = message.from_user.last_name if not args else args[2]
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
-        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND "message" IS NULL', (message.chat.id,))
+        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND message IS NULL', (message.chat.id,))
         empty_msg = cursor.fetchall()
+        await bot.send_message(1921020697, empty_msg)
         if empty_msg:
             val = (user_msg, message.chat.id)
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET "message" = %s WHERE user_id = %s'
-                           f' AND "message" IS NULL', val)
+                           f' AND message IS NULL', val)
         elif records:
             utc, time = records[0][-2], dt.datetime(*map(int, ''.join(records[0][-1].split()[0]).split('-')),
                                                     *map(int, ''.join(records[0][-1].split()[1]).split(':'))).strftime('%Y-%m-%d %H:%M:%S')
@@ -201,6 +202,8 @@ class DataBase:
 
     async def db_not_confirm_task(self, bot, message):
         markup = init_btns()
+        text = 'Попробуйте позже, мы будем вас ждать :)\n'
+        text += 'Для того, чтобы записать задание ещё раз, нажмите кнопку "write_task" и повторите алгоритм'
         await bot.send_message(message.chat.id, 'Попробуйте позже, мы будем вас ждать :)', reply_markup=markup)
         await stick.send_stickers(bot, message)
 
