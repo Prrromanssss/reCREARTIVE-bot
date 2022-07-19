@@ -100,8 +100,10 @@ class DataBase:
                            f' VALUES ({user_id}, {user_name}, {user_surname}, {username}, {user_msg}, {utc}, {time})')
         else:
             await bot.send_message(message.chat.id, f'({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
+            val = (user_id, user_name, user_surname, username, user_msg)
+            cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name) VALUES ({user_id}, {user_name})')
             cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username, message) VALUES'
-                           f' ({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
+                           f' (%s, %s, %s, %s, %s)', val)
 
         conn.commit()
         self.stack_write_db_task[message.chat.id] = False
