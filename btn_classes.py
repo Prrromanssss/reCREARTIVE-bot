@@ -103,7 +103,6 @@ class DataBase:
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET message = %s WHERE user_id = %s'
                            f' AND message IS NULL', val)
         elif records:
-            await bot.send_message(1921020697, f'records {records}')
             utc, time = records[0][-2], dt.datetime(*map(int, ''.join(records[0][-1].split()[0]).split('-')),
                                                     *map(int, ''.join(records[0][-1].split()[1]).split(':'))).strftime('%Y-%m-%d %H:%M:%S')
             val = (user_id, user_name, user_surname, username, user_msg, utc, time)
@@ -111,7 +110,6 @@ class DataBase:
                            f' time)'
                            f' VALUES (%s, %s, %s, %s, %s, %s, %s)', val)
         else:
-            await bot.send_message(1921020697, f'else {records}')
             val = (user_id, user_name, user_surname, username, user_msg)
             cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, "user_name", "user_surname", "username", "message") VALUES'
                            f' (%s, %s, %s, %s, %s)', val)
