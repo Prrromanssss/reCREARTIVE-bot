@@ -62,7 +62,13 @@ async def main_commands(message):
 
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
-async def check_callback(callback):
+def set_notifications(callback):
+    pass
+
+
+@bot.callback_query_handler(func=lambda callback: callback.data)
+async def confirm_callback(callback):
+    await bot.send_message(callback.message.chat.id, callback)
     if callback.data == 'Подтвердить':
         user_message = callback.message.text.split('\n')
         user_id = int(user_message[1].split(':')[-1][1:])
