@@ -98,8 +98,7 @@ class DataBase:
         user_msg = message.text if not args else args[4]
         cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND message IS NULL', (message.chat.id,))
         empty_msg = cursor.fetchall()
-        await bot.send_message(1921020697, empty_msg)
-        if empty_msg:
+        if not empty_msg:
             val = (user_msg, message.chat.id)
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET "message" = %s WHERE user_id = %s'
                            f' AND message IS NULL', val)
@@ -204,7 +203,7 @@ class DataBase:
         markup = init_btns()
         text = 'Попробуйте позже, мы будем вас ждать :)\n'
         text += 'Для того, чтобы записать задание ещё раз, нажмите кнопку "write_task" и повторите алгоритм'
-        await bot.send_message(message.chat.id, 'Попробуйте позже, мы будем вас ждать :)', reply_markup=markup)
+        await bot.send_message(message.chat.id, text, reply_markup=markup)
         await stick.send_stickers(bot, message)
 
 
