@@ -18,7 +18,7 @@ async def try_send_schedule():
         conn.commit()
         for user in records:
             if (user[-1] and user[0] in btn_classes.notifies.flag_for_sending
-                    and btn_classes.notifies.flag_for_sending[user[0]][1]
+                    and btn_classes.notifies.flag_for_sending[user[0]]
                     and (user[0] not in btn_classes.notifies.already_get or btn_classes.notifies.already_get[user[0]])):
                 dt_now = dt.datetime.now(btn_classes.timezone('Europe/Moscow'))
                 dt_need_hour = int(user[-1].split()[-1][:2][1] if not int(user[-1].split()[-1][:2][0])

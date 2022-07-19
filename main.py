@@ -61,27 +61,28 @@ async def main_commands(message):
     await btn_classes.stick.send_stickers(bot, message)
 
 
-# @bot.callback_query_handler(func=lambda callback: callback.data)
-# async def set_notifications(callback):
-#     await
+@bot.callback_query_handler(func=lambda callback: callback.data)
+async def set_notifications(callback):
+    if callback.message.chat.type == 'private':
+        await btn_classes.db_conn.db_set_time(bot, callback.message)
 
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
 async def confirm_callback(callback):
-    await bot.send_message(callback.message.chat.id, callback.message)
-    if callback.data == 'Подтвердить':
-        user_message = callback.message.text.split('\n')
-        user_id = int(user_message[1].split(':')[-1][1:])
-        user_name = user_message[2].split(':')[-1][1:] if user_message[2].split(':')[-1][1:] != 'None' else None
-        user_surname = user_message[3].split(':')[-1][1:] if user_message[3].split(':')[-1][1:] != 'None' else None
-        username = user_message[4].split(':')[-1][1:] if user_message[4].split(':')[-1][1:] != 'None' else None
-        user_msg = ''.join(user_message[5:-1])[''.join(user_message[5:-1]).index('Задание: ') + len('Задание: '):]
-        await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
-                                                user_msg)
-        markup = types.InlineKeyboardMarkup()
-        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: одобрено ' + u'\u2705'
-        await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                    reply_markup=markup)
+    if callback.message.chat.type == 'supergroup':
+        if callback.data == 'Подтвердить':
+            user_message = callback.message.text.split('\n')
+            user_id = int(user_message[1].split(':')[-1][1:])
+            user_name = user_message[2].split(':')[-1][1:] if user_message[2].split(':')[-1][1:] != 'None' else None
+            user_surname = user_message[3].split(':')[-1][1:] if user_message[3].split(':')[-1][1:] != 'None' else None
+            username = user_message[4].split(':')[-1][1:] if user_message[4].split(':')[-1][1:] != 'None' else None
+            user_msg = ''.join(user_message[5:-1])[''.join(user_message[5:-1]).index('Задание: ') + len('Задание: '):]
+            await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
+                                                    user_msg)
+            markup = types.InlineKeyboardMarkup()
+            text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: одобрено ' + u'\u2705'
+            await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
+                                        reply_markup=markup)
 
     elif callback.data == 'Не подтвердить':
         markup = types.InlineKeyboardMarkup(row_width=1)
@@ -121,18 +122,17 @@ async def geo_location(message):
 async def get_private_message(message):
     btn_classes.stick.flag[message.chat.id] = None
 
-    if (message.chat.id in btn_classes.notifies.flag_for_sending
-            and btn_classes.notifies.flag_for_sending[message.chat.id][0] and re.findall(r'\d\d:\d\d', message.text)
-            and len(message.text) == 5):
-        btn_classes.notifies.flag_for_sending[message.chat.id][0] = False
-        await btn_classes.db_conn.db_set_time(bot, message)
+    # if (message.chat.id in btn_classes.notifies.flag_for_sending
+    #         and btn_classes.notifies.flag_for_sending[message.chat.id][0] and re.findall(r'\d\d:\d\d', message.text)
+    #         and len(message.text) == 5):
+    #     btn_classes.notifies.flag_for_sending[message.chat.id][0] = False
+    #     await btn_classes.db_conn.db_set_time(bot, message)
 
+    if not btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
+        markup = btn_classes.init_btns()
+        await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
+                               reply_markup=markup)
     else:
-        if not btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
-            markup = btn_classes.init_btns()
-            await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
-                                   reply_markup=markup)
-    if btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
         btn_classes.db_conn.msgs[message.chat.id] = message
         btn_classes.db_conn.stack_write_db_task[message.chat.id] = False
         await btn_classes.db_conn.db_before_confirm_task(bot, message)

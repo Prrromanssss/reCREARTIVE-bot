@@ -27,18 +27,18 @@ class Notify:
         await stick.send_stickers(bot, message)
 
     async def turn_on_notif(self, bot, message):
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup = types.InlineKeyboardMarkup(row_width=4)
         times = []
         markup.add(types.KeyboardButton('/help'))
         for time in [f'0{i}:00' if i < 10 else f'{i}:00' for i in range(0, 24)]:
             times.append(types.KeyboardButton(time))
         markup.add(*(i for i in times))
-        self.flag_for_sending[message.chat.id] = [True, True]
+        self.flag_for_sending[message.chat.id] = True
         await bot.send_message(message.from_user.id, 'Выберите время для отправки сообщений',
                                reply_markup=markup)
 
     async def turn_off_notif(self, bot, message):
-        self.flag_for_sending[message.chat.id] = [False, False]
+        self.flag_for_sending[message.chat.id] = False
         await bot.send_message(message.from_user.id, 'Супер, уведомления выключены!')
         await stick.send_stickers(bot, message)
 
