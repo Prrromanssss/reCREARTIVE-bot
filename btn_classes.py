@@ -100,8 +100,8 @@ class DataBase:
                            f' VALUES ({user_id}, {user_name}, {user_surname}, {username}, {user_msg}, {utc}, {time})')
         else:
             await bot.send_message(message.chat.id, f'({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
-            cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username, message) VALUES'
-                           f' ({user_id}, {user_name}, {user_surname}, {username}, {user_msg});')
+            cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (id, user_id, user_name, user_surname, username, message) VALUES'
+                           f' ({1}, {user_id}, {user_name}, {user_surname}, {username}, {user_msg});')
         conn.commit()
         self.stack_write_db_task[message.chat.id] = False
         markup = init_btns()
@@ -147,7 +147,7 @@ class DataBase:
             user_surname = message.from_user.last_name
             username = message.from_user.username
             sqlite_insert_query = f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username) VALUES' \
-                                  f' ({user_id},{user_name}, {user_surname}, {username})'
+                                  f' ({user_id}, {user_name}, {user_surname}, {username})'
             cursor.execute(sqlite_insert_query)
         cursor.execute(f'UPDATE {DB_TABLE_NAME} SET utc = {differ_int} WHERE user_id = {message.chat.id}')
         conn.commit()
