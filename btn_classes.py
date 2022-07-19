@@ -39,6 +39,7 @@ class Notify:
         self.flag_for_sending[message.chat.id] = True
         await bot.send_message(message.from_user.id, 'Выберите время для отправки сообщений',
                                reply_markup=markup)
+        await stick.send_stickers(bot, message)
 
     async def turn_off_notif(self, bot, message):
         db_conn.stack_write_db_task[message.chat.id] = False
@@ -75,6 +76,7 @@ class DataBase:
         except IndexError:
             await bot.send_message(message.chat.id, 'Задания еще нет\nБудьте первыми, кто его напишет!',
                                    reply_markup=markup)
+            await stick.send_stickers(bot, message)
 
     async def db_before_write_task(self, bot, message):
         self.stack_write_db_task[message.chat.id] = True
@@ -183,8 +185,8 @@ class DataBase:
         username = message.from_user.username
         markup = init_btns()
         await bot.send_message(message.chat.id, 'Ваше задание отправлено модераторам на проверку', reply_markup=markup)
+        await stick.send_stickers(bot, message)
         markup = types.InlineKeyboardMarkup(row_width=2)
-
         btn1 = types.InlineKeyboardButton(text='Подтвердить', callback_data='Подтвердить')
         btn2 = types.InlineKeyboardButton(text='Не подтвердить', callback_data='Не подтвердить')
         markup.add(btn1, btn2)
@@ -223,7 +225,7 @@ class Stickers:
         markup.add(btn1, btn2)
         await bot.send_message(message.from_user.id, 'Вы хотите пополнить стикеры или удалить ?',
                                reply_markup=markup)
-        await stick.send_stickers(bot, message)
+        await self.send_stickers(bot, message)
 
     async def add_del(self, bot, message):
         db_conn.stack_write_db_task[message.chat.id] = False
@@ -232,6 +234,7 @@ class Stickers:
         markup.add(btn1)
         await bot.send_message(message.from_user.id, 'Присылайте стикеры, как закончите нажмите кнопку "/stop_stickers"',
                                reply_markup=markup)
+        await self.send_stickers(bot, message)
 
     async def add_stick(self, bot, message):
         self.stick_sending[message.chat.id] = True
@@ -253,6 +256,7 @@ class Stickers:
         else:
             await bot.send_message(message.from_user.id, 'Эта кнопка действуют только после "add_stickers"'
                                                          ' и "del_stickers"')
+        await self.send_stickers(bot, message)
         self.stick_sending[message.chat.id] = False
 
 

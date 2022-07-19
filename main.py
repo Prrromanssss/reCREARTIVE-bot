@@ -106,6 +106,7 @@ async def reply_msg(reply):
         task = '\n'.join(reply.reply_to_message.text.split('\n')[-3:-2])['\n'.join(reply.reply_to_message.text.split('\n')[-3:-2]).index('Задание: ') + len('Задание: '):]
         task = '<strong>Задание:\n</strong>' + task
         await bot.send_message(user_id, text + task, reply_markup=markup, parse_mode='html')
+        await btn_classes.stick.send_stickers(bot, user_id)
 
 
 @bot.message_handler(commands=[comm[1:] for comm in useful_msg], chat_types=['private'])
@@ -143,6 +144,7 @@ async def get_private_message(message):
         markup = btn_classes.init_btns()
         await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
                                reply_markup=markup)
+        await btn_classes.stick.send_stickers(bot, message)
 
 
 @bot.message_handler(content_types=['sticker'], chat_types=['private'])
