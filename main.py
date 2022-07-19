@@ -96,7 +96,8 @@ async def confirm_callback(callback):
 async def reply_msg(reply):
     if reply.reply_to_message is not None and u'\u274C' in reply.reply_to_message.text.split('\n')[-2]:
         reason = '\n'.join(reply.reply_to_message.text.split('\n')[:-1]) + f'\n<strong>Причина:</strong> {reply.text}'
-        await bot.edit_message_text(chat_id=reply.chat.id, message_id=reply.reply_to_message.id, text=reason)
+        await bot.edit_message_text(chat_id=reply.chat.id, message_id=reply.reply_to_message.id, text=reason,
+                                    parse_mode='html')
         markup = btn_classes.init_btns()
         user_id = int(reply.reply_to_message.text.split('\n')[1].split(':')[-1][1:])
         text = f'Ваше сообщение не было одобрено, модератор высказал причину:\n\n{reply.text}\n\n'
