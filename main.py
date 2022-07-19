@@ -101,7 +101,7 @@ async def reply_msg(reply):
         markup = btn_classes.init_btns()
         user_id = int(reply.reply_to_message.text.split('\n')[1].split(':')[-1][1:])
         text = f'Ваше сообщение не было одобрено, модератор высказал причину:\n\n{reply.text}\n\n'
-        task = '<strong>Задание:\n</strong>' + '\n'.join(reply.reply_to_message.text.split('\n')[:-2])
+        task = '<strong>Задание:\n</strong>' + '\n'.join(reply.reply_to_message.text.split('\n')[-3:-2])
         await bot.send_message(user_id, text + task, reply_markup=markup, parse_mode='html')
 
 
