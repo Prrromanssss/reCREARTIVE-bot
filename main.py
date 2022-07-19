@@ -63,9 +63,9 @@ async def main_commands(message):
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
 async def set_notifications(callback):
-    await bot.send_message(callback.message.chat.id, callback.message.text)
+    await bot.send_message(callback.message.chat.id, callback.data)
     if callback.message.chat.type == 'private':
-        await btn_classes.db_conn.db_set_time(bot, callback.message)
+        await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
 
 
 @bot.callback_query_handler(func=lambda callback: callback.data)

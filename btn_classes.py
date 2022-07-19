@@ -109,22 +109,22 @@ class DataBase:
                                reply_markup=markup)
         await stick.send_stickers(bot, user_id)
 
-    async def db_set_time(self, bot, message):
+    async def db_set_time(self, bot, message, data):
         conn = psycopg2.connect(self.name, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
-        cursor.execute(sqlite_select_query, (message.chat.id,))
+        cursor.execute(sqlite_select_query, (message.from_user.id,))
         utc = int(cursor.fetchall()[0][-2])
         differ_time = dt.timedelta(hours=abs(utc))
         dt_now = dt.datetime.now(timezone('Europe/Moscow'))
         dt_now = dt.datetime(year=dt_now.year, month=dt_now.month, day=dt_now.day,
-                             hour=int(message.text.split(':')[0]), minute=int(message.text.split(':')[1]))
+                             hour=int(data.split(':')[0]), minute=int(data.split(':')[1]))
         if utc >= 0:
             dt_time = dt_now + differ_time
         else:
             dt_time = dt_now - differ_time
         dt_time = dt_time.strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute(f'UPDATE {DB_TABLE_NAME} SET time = %s WHERE user_id = %s', (dt_time, message.chat.id))
+        cursor.execute(f'UPDATE {DB_TABLE_NAME} SET time = %s WHERE user_id = %s', (dt_time, message.from_user.id))
         conn.commit()
         markup = init_btns()
         await bot.send_message(message.from_user.id, 'Время выставлено!', reply_markup=markup)
@@ -196,7 +196,7 @@ class Stickers:
         self.flag = {}
 
     async def send_stickers(self, bot, message):
-        chat_id = message if isinstance(message, int) else message.chat.id
+        chat_id = message if isinstance(message, int) else message.from_user.id
         data = open_file('data_stick.json')
         if data and str(chat_id) in data and data[str(chat_id)]:
             await bot.send_sticker(chat_id, choice(list(data[str(chat_id)].values())))
