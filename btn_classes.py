@@ -114,14 +114,18 @@ class DataBase:
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
         cursor.execute(sqlite_select_query, (message.chat.id,))
-        await bot.send_message(message.chat.id, cursor.fetchall())
-        await bot.send_message(message.chat.id, data.split(':'))
 
-        utc = int(cursor.fetchall()[0][-2])
+        try:
+            utc = int(cursor.fetchall()[0][-2])
+        except IndexError:
+            await bot.send_message(message.chat.id, '1')
         differ_time = dt.timedelta(hours=abs(utc))
         dt_now = dt.datetime.now(timezone('Europe/Moscow'))
-        dt_now = dt.datetime(year=dt_now.year, month=dt_now.month, day=dt_now.day,
-                             hour=int(data.split(':')[0]), minute=int(data.split(':')[1]))
+        try:
+            dt_now = dt.datetime(year=dt_now.year, month=dt_now.month, day=dt_now.day,
+                                 hour=int(data.split(':')[0]), minute=int(data.split(':')[1]))
+        except IndexError:
+            await bot.send_message(message.chat.id, '2')
         if utc >= 0:
             dt_time = dt_now + differ_time
         else:
@@ -200,8 +204,11 @@ class Stickers:
     async def send_stickers(self, bot, message):
         chat_id = message if isinstance(message, int) else message.chat.id
         data = open_file('data_stick.json')
-        if data and str(chat_id) in data and data[str(chat_id)]:
-            await bot.send_sticker(chat_id, choice(list(data[str(chat_id)].values())))
+        try:
+            if data and str(chat_id) in data and data[str(chat_id)]:
+                await bot.send_sticker(chat_id, choice(list(data[str(chat_id)].values())))
+        except IndexError:
+            await bot.send_message(message.chat.id, '3')
 
     async def turn_stick(self, bot, message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
