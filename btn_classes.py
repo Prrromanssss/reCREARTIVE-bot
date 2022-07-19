@@ -96,16 +96,16 @@ class DataBase:
         user_surname = message.from_user.last_name if not args else args[2]
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
-        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s', (message.chat.id,))
+        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s', (user_id,))
         c1 = cursor.fetchall()
         cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE message IS NULL')
         c2 = cursor.fetchall()
         await bot.send_message(1921020697, c1)
         await bot.send_message(1921020697, c2)
-        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND message IS NULL', (message.chat.id,))
+        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND message IS NULL', (user_id,))
         empty_msg = cursor.fetchall()
         if empty_msg:
-            val = (user_msg, message.chat.id)
+            val = (user_msg, user_id)
 
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET message = %s WHERE user_id = %s'
                            f' AND message IS NULL', val)
@@ -124,7 +124,7 @@ class DataBase:
                            f' (%s, %s, %s, %s, %s)', val)
 
         conn.commit()
-        self.stack_write_db_task[message.chat.id] = False
+        self.stack_write_db_task[user_id] = False
         markup = init_btns()
         await bot.send_message(user_id, f'Успешно! Ваше задание было добавлено в общую базу данных\n\n'
                                         f'<strong>Задание:\n</strong>{user_msg} ',
