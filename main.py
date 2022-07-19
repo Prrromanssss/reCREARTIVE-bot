@@ -132,17 +132,17 @@ async def get_private_message(message):
     if btn_classes.stick.stick_sending.get(message.chat.id):
         markup = types.ReplyKeyboardMarkup()
         markup.add('/stop_stickers')
-        await bot.send_message(message.chat.id, 'Закончите отправку стикеров(кнопка "stop_stickers")',
+        await bot.send_message(message.chat.id, 'Закончите отправку стикеров (кнопка "stop_stickers")',
                                reply_markup=markup)
-    if ((not btn_classes.db_conn.stack_write_db_task.get(message.chat.id))
-            and not btn_classes.stick.stick_sending.get(message.chat.id)):
-        markup = btn_classes.init_btns()
-        await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
-                               reply_markup=markup)
-    else:
+    elif btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
         btn_classes.db_conn.msgs[message.chat.id] = message
         btn_classes.db_conn.stack_write_db_task[message.chat.id] = False
         await btn_classes.db_conn.db_before_confirm_task(bot, message)
+
+    else:
+        markup = btn_classes.init_btns()
+        await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
+                               reply_markup=markup)
 
 
 @bot.message_handler(content_types=['sticker'], chat_types=['private'])
