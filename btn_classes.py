@@ -93,7 +93,7 @@ class DataBase:
                            f' AND "message" IS NULL', val)
         elif records:
             utc, time = records[0][-2], dt.datetime(*map(int, ''.join(records[0][-1].split()[0]).split('-')),
-                                                    *map(int, ''.join(records[0][-1].split()[1]).split(':')))
+                                                    *map(int, ''.join(records[0][-1].split()[1]).split(':'))).strftime('%Y-%m-%d %H:%M:%S')
             val = (user_id, user_name, user_surname, username, user_msg, utc, time)
             cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, "user_name", "user_surname", "username", "message", utc,'
                            f' time)'
@@ -124,7 +124,7 @@ class DataBase:
             dt_time = dt_now + differ_time
         else:
             dt_time = dt_now - differ_time
-
+        dt_time = dt_time.strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute(f'UPDATE {DB_TABLE_NAME} SET time = %s WHERE user_id = %s', (dt_time, message.chat.id))
         conn.commit()
         markup = init_btns()
