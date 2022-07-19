@@ -115,11 +115,6 @@ async def geo_location(message):
 async def get_private_message(message):
     btn_classes.stick.flag[message.chat.id] = None
 
-    if btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
-        btn_classes.db_conn.msgs[message.chat.id] = message
-        btn_classes.db_conn.stack_write_db_task[message.chat.id] = False
-        await btn_classes.db_conn.db_before_confirm_task(bot, message)
-
     if (message.chat.id in btn_classes.notifies.flag_for_sending
             and btn_classes.notifies.flag_for_sending[message.chat.id][0] and re.findall(r'\d\d:\d\d', message.text)
             and len(message.text) == 5):
@@ -131,6 +126,10 @@ async def get_private_message(message):
             markup = btn_classes.init_btns()
             await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
                                    reply_markup=markup)
+    if btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
+        btn_classes.db_conn.msgs[message.chat.id] = message
+        btn_classes.db_conn.stack_write_db_task[message.chat.id] = False
+        await btn_classes.db_conn.db_before_confirm_task(bot, message)
 
 
 @bot.message_handler(content_types=['sticker'], chat_types=['private'])

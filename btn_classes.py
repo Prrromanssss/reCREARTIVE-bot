@@ -56,13 +56,16 @@ class DataBase:
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} ORDER BY RANDOM() LIMIT 1;'
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
-        surname = records[0][3] if records[0][3] else ''
-        user = records[0][4] if records[0][4] else records[0][2] + ' ' + surname
-        text = f'Задание от {user}:\n\n{records[0][5]}'
-        conn.commit()
-        await bot.send_message(chat_id, text)
-        await bot.send_message(chat_id, choice(set_of_funny_msg))
-        await stick.send_stickers(bot, chat_id)
+        try:
+            surname = records[0][3] if records[0][3] else ''
+            user = records[0][4] if records[0][4] else records[0][2] + ' ' + surname
+            text = f'Задание от {user}:\n\n{records[0][5]}'
+            conn.commit()
+            await bot.send_message(chat_id, text)
+            await bot.send_message(chat_id, choice(set_of_funny_msg))
+            await stick.send_stickers(bot, chat_id)
+        except IndexError:
+            await bot.send_message(message.chat.id, 'Задания еще нет\nБудьте первыми, кто его напишет!')
 
     async def db_before_write_task(self, bot, message):
         self.stack_write_db_task[message.chat.id] = True
