@@ -149,7 +149,7 @@ async def get_private_message(message):
 
 @bot.message_handler(content_types=['sticker'], chat_types=['private'])
 async def get_sticker_messages(sticker):
-    btn_classes.stick.flag_location[sticker.from_user.id] = False
+    btn_classes.notifies.flag_location[sticker.from_user.id] = False
     data = btn_classes.open_file('data_stick.json')
     if btn_classes.stick.flag[sticker.from_user.id] is not None and btn_classes.stick.flag[sticker.from_user.id]:
         if data.get(str(sticker.from_user.id)):
