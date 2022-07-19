@@ -69,6 +69,7 @@ async def set_notifications(callback):
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
 async def confirm_callback(callback):
+    await bot.send_message(callback.message.chat.id, callback.message.chat.type)
     if callback.message.chat.type == 'supergroup':
         if callback.data == 'Подтвердить':
             user_message = callback.message.text.split('\n')
@@ -84,11 +85,11 @@ async def confirm_callback(callback):
             await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
                                         reply_markup=markup)
 
-    elif callback.data == 'Не подтвердить':
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: отказано ' + u'\u274C' + '\nПричина:'
-        await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                    reply_markup=markup)
+        elif callback.data == 'Не подтвердить':
+            markup = types.InlineKeyboardMarkup(row_width=1)
+            text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: отказано ' + u'\u274C' + '\nПричина:'
+            await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
+                                        reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'], chat_types=['supergroup'])
