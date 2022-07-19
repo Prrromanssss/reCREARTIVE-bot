@@ -80,13 +80,13 @@ async def confirm_callback(callback):
         await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
                                                 user_msg)
         markup = types.InlineKeyboardMarkup()
-        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\n<strong>Статус:</strong> одобрено ' + u'\u2705'
+        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\n<strong>Статус:</strong> Одобрено ' + u'\u2705'
         await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
                                     reply_markup=markup, parse_mode='html')
 
     elif callback.data == 'Не подтвердить':
         markup = types.InlineKeyboardMarkup(row_width=1)
-        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\n<strong>Статус:</strong> отказано '\
+        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\n<strong>Статус:</strong> Отказано '\
                + u'\u274C' + '\n<strong>Причина: </strong>'
         await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
                                     reply_markup=markup, parse_mode='html')
@@ -95,7 +95,9 @@ async def confirm_callback(callback):
 @bot.message_handler(content_types=['text'], chat_types=['supergroup'])
 async def reply_msg(reply):
     if reply.reply_to_message is not None and u'\u274C' in reply.reply_to_message.text.split('\n')[-2]:
-        reason = '\n'.join(reply.reply_to_message.text.split('\n')[:-1]) + f'\n<strong>Причина:</strong> {reply.text}'
+        reason = '\n'.join(reply.reply_to_message.text.split('\n')[:-2])\
+                 + f'\n<strong>Статус:</strong> Отказано ' + u'\u274C'\
+                 + f'\n<strong>Причина:</strong> {reply.text}'
         await bot.edit_message_text(chat_id=reply.chat.id, message_id=reply.reply_to_message.id, text=reason,
                                     parse_mode='html')
         markup = btn_classes.init_btns()
