@@ -114,7 +114,7 @@ class DataBase:
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
         cursor.execute(sqlite_select_query, (message.from_user.id,))
-        await bot.send_message(message.from_user.id, cursor().fetchall())
+        await bot.send_message(message.from_user.id, cursor.fetchall())
         await bot.send_message(message.from_user.id, data.split(':'))
 
         utc = int(cursor.fetchall()[0][-2])
