@@ -25,6 +25,8 @@ useful_msg = {'/get_task': btn_classes.db_conn.db_get_task,
 @bot.message_handler(commands=['start', 'help'], chat_types=['private'])
 async def main_commands(message):
     markup = btn_classes.init_btns()
+    btn_classes.notifies.flag_location[message.chat.id] = False
+    btn_classes.stick.flag[message.from_user.id] = None
     greeting = 'Привет, тебя встречает команда reCREARTIVE \n\n'\
                'Мы создали бота, который будет тренировать твою креативность и делиться с тобой взглядом' \
                ' на мир разных художников.\n\n'\
@@ -78,26 +80,28 @@ async def confirm_callback(callback):
         await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
                                                 user_msg)
         markup = types.InlineKeyboardMarkup()
-        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: одобрено ' + u'\u2705'
+        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\n<strong>Статус:</strong> одобрено ' + u'\u2705'
         await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                    reply_markup=markup)
+                                    reply_markup=markup, parse_mode='html')
 
     elif callback.data == 'Не подтвердить':
         markup = types.InlineKeyboardMarkup(row_width=1)
-        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: отказано ' + u'\u274C' + '\nПричина:'
+        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\n<strong>Статус:</strong> отказано '\
+               + u'\u274C' + '\n<strong>Причина: </strong>'
         await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                    reply_markup=markup)
+                                    reply_markup=markup, parse_mode='html')
 
 
 @bot.message_handler(content_types=['text'], chat_types=['supergroup'])
 async def reply_msg(reply):
     if reply.reply_to_message is not None and u'\u274C' in reply.reply_to_message.text.split('\n')[-2]:
-        reason = '\n'.join(reply.reply_to_message.text.split('\n')[:-1]) + f'\nПричина: {reply.text}'
+        reason = '\n'.join(reply.reply_to_message.text.split('\n')[:-1]) + f'\n<strong>Причина:</strong> {reply.text}'
         await bot.edit_message_text(chat_id=reply.chat.id, message_id=reply.reply_to_message.id, text=reason)
         markup = btn_classes.init_btns()
         user_id = int(reply.reply_to_message.text.split('\n')[1].split(':')[-1][1:])
-        text = f'Ваше сообщение не было одобрено, модератор высказал причину:\n\n{reply.text}'
-        await bot.send_message(user_id, text, reply_markup=markup)
+        text = f'Ваше сообщение не было одобрено, модератор высказал причину:\n\n{reply.text}\n\n'
+        task = '<strong>Задание:\n</strong>' + '\n'.join(reply.reply_to_message.text.split('\n')[:-2])
+        await bot.send_message(user_id, text + task, reply_markup=markup, parse_mode='html')
 
 
 @bot.message_handler(commands=[comm[1:] for comm in useful_msg], chat_types=['private'])

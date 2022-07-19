@@ -115,8 +115,9 @@ class DataBase:
         conn.commit()
         self.stack_write_db_task[message.chat.id] = False
         markup = init_btns()
-        await bot.send_message(user_id, 'Успешно! Ваше задание было добавлено в общую базу данных',
-                               reply_markup=markup)
+        await bot.send_message(user_id, f'Успешно! Ваше задание было добавлено в общую базу данных\n\n'
+                                        f'<strong>Задание:\n</strong>{user_msg} ',
+                               reply_markup=markup, parse_mode='html')
         await stick.send_stickers(bot, user_id)
 
     async def db_set_time(self, bot, message, data):
@@ -192,9 +193,9 @@ class DataBase:
                                                  f'user_name: {user_name}\n'
                                                  f'user_surname: {user_surname}\n'
                                                  f'username: {username}\n'
-                                                 f'Задание: {self.msgs[message.chat.id].text}\n'
-                                                 f'Статус: на проверке',
-                               reply_markup=markup)
+                                                 f'<strong>Задание</strong>: {self.msgs[message.chat.id].text}\n'
+                                                 f'<strong>Статус:</strong> на проверке',
+                               reply_markup=markup, parse_mode='html')
 
     async def db_not_confirm_task(self, bot, message):
         markup = init_btns()
