@@ -123,13 +123,13 @@ async def geo_location(message):
 async def get_private_message(message):
     btn_classes.stick.flag[message.chat.id] = None
     btn_classes.notifies.flag_location[message.chat.id] = False
-    if btn_classes.stick.stick_sending[message.chat.id]:
+    if btn_classes.stick.stick_sending.get(message.chat.id):
         markup = types.ReplyKeyboardMarkup()
         markup.add('/stop_stickers')
         await bot.send_message(message.chat.id, 'Закончите отправку стикеров(кнопка "stop_stickers")',
                                reply_markup=markup)
     if ((not btn_classes.db_conn.stack_write_db_task.get(message.chat.id))
-            and btn_classes.stick.stick_sending[message.chat.id]):
+            and not btn_classes.stick.stick_sending.get(message.chat.id)):
         markup = btn_classes.init_btns()
         await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
                                reply_markup=markup)
