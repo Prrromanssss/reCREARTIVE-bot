@@ -88,20 +88,13 @@ class DataBase:
         conn = psycopg2.connect(self.name, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
-        cursor.execute(sqlite_select_query, (message.chat.id,))
-        records = cursor.fetchall()
-
         user_id = message.from_user.id if not args else args[0]
+        cursor.execute(sqlite_select_query, (user_id,))
+        records = cursor.fetchall()
         user_name = message.from_user.first_name if not args else args[1]
         user_surname = message.from_user.last_name if not args else args[2]
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
-        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s', (user_id,))
-        c1 = cursor.fetchall()
-        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE message IS NULL')
-        c2 = cursor.fetchall()
-        await bot.send_message(1921020697, c1)
-        await bot.send_message(1921020697, c2)
         cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND message IS NULL', (user_id,))
         empty_msg = cursor.fetchall()
         if empty_msg:
