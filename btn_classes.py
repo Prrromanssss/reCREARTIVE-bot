@@ -18,7 +18,7 @@ class Notify:
         conn = psycopg2.connect(db_conn.name, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
-
+        db_conn.stack_write_db_task[message.chat.id] = False
         cursor.execute(sqlite_select_query, (message.chat.id,))
         markup = types.ReplyKeyboardRemove()
         text = 'Пришлите нам свое местоположение. \n\n'\
@@ -27,6 +27,7 @@ class Notify:
         await stick.send_stickers(bot, message)
 
     async def turn_on_notif(self, bot, message):
+        db_conn.stack_write_db_task[message.chat.id] = False
         markup = types.InlineKeyboardMarkup(row_width=6)
         times = []
         for time in [f'0{i}:00' if i < 10 else f'{i}:00' for i in range(0, 24)]:
@@ -37,6 +38,7 @@ class Notify:
                                reply_markup=markup)
 
     async def turn_off_notif(self, bot, message):
+        db_conn.stack_write_db_task[message.chat.id] = False
         self.flag_for_sending[message.chat.id] = False
         await bot.send_message(message.from_user.id, 'Супер, уведомления выключены!')
         await stick.send_stickers(bot, message)
@@ -131,8 +133,9 @@ class DataBase:
         dt_time = dt_time.strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute(f'UPDATE {DB_TABLE_NAME} SET time = %s WHERE user_id = %s', (dt_time, message.chat.id))
         conn.commit()
-        # markup = init_btns()
-        # await bot.send_message(message.chat.id, 'Время выставлено!', reply_markup=markup)
+        markup = init_btns()
+        text = 'Время выставлено: ' + data
+        await bot.send_message(message.chat.id, text, reply_markup=markup)
         await stick.send_stickers(bot, message)
 
     async def db_update_task(self, bot, message):
@@ -206,8 +209,8 @@ class Stickers:
         if data and str(chat_id) in data and data[str(chat_id)]:
             await bot.send_sticker(chat_id, choice(list(data[str(chat_id)].values())))
 
-
     async def turn_stick(self, bot, message):
+        db_conn.stack_write_db_task[message.chat.id] = False
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('/add_stickers')
         btn2 = types.KeyboardButton('/del_stickers')
@@ -217,6 +220,7 @@ class Stickers:
         await stick.send_stickers(bot, message)
 
     async def add_del(self, bot, message):
+        db_conn.stack_write_db_task[message.chat.id] = False
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('/stop_stickers')
         markup.add(btn1)
@@ -224,15 +228,18 @@ class Stickers:
                                reply_markup=markup)
 
     async def add_stick(self, bot, message):
+        db_conn.stack_write_db_task[message.chat.id] = False
         self.flag[message.chat.id] = True
         await self.add_del(bot, message)
 
     async def del_stick(self, bot, message):
+        db_conn.stack_write_db_task[message.chat.id] = False
         self.flag[message.chat.id] = False
         await self.add_del(bot, message)
 
     async def stop_stick(self, bot, message):
         markup = init_btns()
+        db_conn.stack_write_db_task[message.chat.id] = False
         await bot.send_message(message.from_user.id, 'Ваш набор стикеров обновился!', reply_markup=markup)
 
 

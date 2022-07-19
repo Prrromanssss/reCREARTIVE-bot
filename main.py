@@ -64,10 +64,7 @@ async def main_commands(message):
 @bot.callback_query_handler(func=lambda callback: callback.data)
 async def set_notifications(callback):
     if callback.message.chat.type == 'private':
-        markup = btn_classes.init_btns()
-        text = 'Время выставлено: ' + callback.data
-        await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                    reply_markup=markup)
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.id)
         await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
 
 
@@ -125,12 +122,6 @@ async def geo_location(message):
 @bot.message_handler(content_types=['text'], chat_types=['private'])
 async def get_private_message(message):
     btn_classes.stick.flag[message.chat.id] = None
-
-    # if (message.chat.id in btn_classes.notifies.flag_for_sending
-    #         and btn_classes.notifies.flag_for_sending[message.chat.id][0] and re.findall(r'\d\d:\d\d', message.text)
-    #         and len(message.text) == 5):
-    #     btn_classes.notifies.flag_for_sending[message.chat.id][0] = False
-    #     await btn_classes.db_conn.db_set_time(bot, message)
 
     if not btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
         markup = btn_classes.init_btns()
