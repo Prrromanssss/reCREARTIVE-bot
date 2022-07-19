@@ -90,7 +90,7 @@ class DataBase:
         if empty_msg:
             await bot.send_message(message.chat.id, empty_msg)
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET message = {user_msg} WHERE user_id = {message.chat.id}'
-                           f' AND message IS NULL',)
+                           f' AND message IS NULL')
         elif records:
             await bot.send_message(message.chat.id, records)
             utc, time = records[0][-2], dt.datetime(*map(int, ''.join(records[0][-1].split()[0]).split('-')),
@@ -101,7 +101,8 @@ class DataBase:
         else:
             await bot.send_message(message.chat.id, f'({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
             cursor.execute(f'INSERT INTO {DB_TABLE_NAME} (user_id, user_name, user_surname, username, message) VALUES'
-                           f' ({user_id}, {user_name}, {user_surname}, {username}, {message})')
+                           f' ({user_id}, {user_name}, {user_surname}, {username}, {user_msg})')
+
         conn.commit()
         self.stack_write_db_task[message.chat.id] = False
         markup = init_btns()
