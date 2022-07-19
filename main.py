@@ -60,36 +60,33 @@ async def main_commands(message):
     await btn_classes.stick.send_stickers(bot, message)
 
 
-@bot.callback_query_handler(func=lambda callback: callback.data)
+@bot.callback_query_handler(func=lambda callback: callback.data.chat.type == 'private')
 async def set_notifications(callback):
-    if callback.message.chat.type == 'private':
-        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.id)
-        await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
+    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.id)
+    await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
 
 
-@bot.callback_query_handler(func=lambda callback: callback.data)
+@bot.callback_query_handler(func=lambda callback: callback.data.chat.type == 'supergroup')
 async def confirm_callback(callback):
-    await bot.send_message(callback.message.chat.id, callback.message.chat.type)
-    if callback.message.chat.type == 'supergroup':
-        if callback.data == 'Подтвердить':
-            user_message = callback.message.text.split('\n')
-            user_id = int(user_message[1].split(':')[-1][1:])
-            user_name = user_message[2].split(':')[-1][1:] if user_message[2].split(':')[-1][1:] != 'None' else None
-            user_surname = user_message[3].split(':')[-1][1:] if user_message[3].split(':')[-1][1:] != 'None' else None
-            username = user_message[4].split(':')[-1][1:] if user_message[4].split(':')[-1][1:] != 'None' else None
-            user_msg = ''.join(user_message[5:-1])[''.join(user_message[5:-1]).index('Задание: ') + len('Задание: '):]
-            await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
-                                                    user_msg)
-            markup = types.InlineKeyboardMarkup()
-            text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: одобрено ' + u'\u2705'
-            await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                        reply_markup=markup)
+    if callback.data == 'Подтвердить':
+        user_message = callback.message.text.split('\n')
+        user_id = int(user_message[1].split(':')[-1][1:])
+        user_name = user_message[2].split(':')[-1][1:] if user_message[2].split(':')[-1][1:] != 'None' else None
+        user_surname = user_message[3].split(':')[-1][1:] if user_message[3].split(':')[-1][1:] != 'None' else None
+        username = user_message[4].split(':')[-1][1:] if user_message[4].split(':')[-1][1:] != 'None' else None
+        user_msg = ''.join(user_message[5:-1])[''.join(user_message[5:-1]).index('Задание: ') + len('Задание: '):]
+        await btn_classes.db_conn.db_write_task(bot, callback.message, user_id, user_name, user_surname, username,
+                                                user_msg)
+        markup = types.InlineKeyboardMarkup()
+        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: одобрено ' + u'\u2705'
+        await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
+                                    reply_markup=markup)
 
-        elif callback.data == 'Не подтвердить':
-            markup = types.InlineKeyboardMarkup(row_width=1)
-            text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: отказано ' + u'\u274C' + '\nПричина:'
-            await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
-                                        reply_markup=markup)
+    elif callback.data == 'Не подтвердить':
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        text = '\n'.join(callback.message.text.split('\n')[:-1]) + '\nСтатус: отказано ' + u'\u274C' + '\nПричина:'
+        await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
+                                    reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'], chat_types=['supergroup'])
