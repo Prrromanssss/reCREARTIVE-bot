@@ -64,8 +64,8 @@ async def main_commands(message):
 @bot.callback_query_handler(func=lambda callback: callback.data)
 async def set_notifications(callback):
     if callback.message.chat.type == 'private':
-        markup = types.InlineKeyboardMarkup()
-        text = callback.message.text + 'Время выбрано:' + callback.data
+        markup = btn_classes.init_btns()
+        text = 'Время выставлено: ' + callback.data
         await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
                                     reply_markup=markup)
         await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
