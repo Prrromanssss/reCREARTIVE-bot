@@ -114,6 +114,9 @@ class DataBase:
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
         cursor.execute(sqlite_select_query, (message.from_user.id,))
+        await bot.send_message(message.from_user.id, cursor().fetchall())
+        await bot.send_message(message.from_user.id, data.split(':'))
+
         utc = int(cursor.fetchall()[0][-2])
         differ_time = dt.timedelta(hours=abs(utc))
         dt_now = dt.datetime.now(timezone('Europe/Moscow'))
@@ -155,7 +158,6 @@ class DataBase:
         await notifies.turn_on_notif(bot, message)
 
     async def db_before_confirm_task(self, bot, message):
-
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('/confirm')
         btn2 = types.KeyboardButton('/not_confirm')
