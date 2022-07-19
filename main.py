@@ -64,11 +64,11 @@ async def main_commands(message):
 @bot.callback_query_handler(func=lambda callback: callback.data)
 async def set_notifications(callback):
     if callback.message.chat.type == 'private':
-        await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
         markup = types.InlineKeyboardMarkup()
         text = callback.message.text
         await bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.id, text=text,
                                     reply_markup=markup)
+        await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
 
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
