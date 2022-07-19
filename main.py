@@ -1,7 +1,6 @@
 import asyncio
 import telebot.async_telebot
 import json
-import re
 import config_data
 import btn_classes
 import timer
@@ -37,7 +36,7 @@ async def main_commands(message):
                'просто нажмите кнопку "notify", и вы будете становиться креативными каждый день\n\n'\
                'Кстати, можешь накидать нам любимых стикеров, чтобы наше общение было веселее!\n\n'\
                'Выбирай!\n\n'\
-               '<strong>База данных</strong>\n'\
+               '<strong>Задание</strong>\n'\
                '/get_task - получить задание\n'\
                '/write_task - прислать задание, которое получит другой участник\n'\
                '/confirm - подтвердить задание (а вдруг вы ошиблись :) )\n'\
@@ -105,6 +104,7 @@ async def reply_msg(reply):
 
 @bot.message_handler(commands=[comm[1:] for comm in useful_msg], chat_types=['private'])
 async def basic_commands(message):
+    btn_classes.notifies.flag_location[message.chat.id] = False
     btn_classes.stick.flag[message.from_user.id] = None
     for msg in useful_msg:
         if message.text.lower() == msg:
@@ -115,15 +115,21 @@ async def basic_commands(message):
 @bot.message_handler(content_types=['location', 'venue'], chat_types=['private'])
 async def geo_location(message):
     btn_classes.stick.flag[message.from_user.id] = None
-    if message.location is not None:
+    if message.location is not None and btn_classes.notifies.flag_location[message.chat.id]:
         await btn_classes.db_conn.db_update_task(bot, message)
 
 
 @bot.message_handler(content_types=['text'], chat_types=['private'])
 async def get_private_message(message):
     btn_classes.stick.flag[message.chat.id] = None
-
-    if not btn_classes.db_conn.stack_write_db_task.get(message.chat.id):
+    btn_classes.notifies.flag_location[message.chat.id] = False
+    if btn_classes.stick.stick_sending[message.chat.id]:
+        markup = types.ReplyKeyboardMarkup()
+        markup.add('/stop_stickers')
+        await bot.send_message(message.chat.id, 'Закончите отправку стикеров(кнопка "stop_stickers")',
+                               reply_markup=markup)
+    if ((not btn_classes.db_conn.stack_write_db_task.get(message.chat.id))
+            and btn_classes.stick.stick_sending[message.chat.id]):
         markup = btn_classes.init_btns()
         await bot.send_message(message.chat.id, 'Я так не понимаю :(\nВыбери какую-то команду!',
                                reply_markup=markup)
@@ -135,13 +141,15 @@ async def get_private_message(message):
 
 @bot.message_handler(content_types=['sticker'], chat_types=['private'])
 async def get_sticker_messages(sticker):
+    btn_classes.stick.flag_location[sticker.from_user.id] = False
     data = btn_classes.open_file('data_stick.json')
     if btn_classes.stick.flag[sticker.from_user.id] is not None and btn_classes.stick.flag[sticker.from_user.id]:
         if data.get(str(sticker.from_user.id)):
             data[str(sticker.from_user.id)].update({sticker.sticker.file_unique_id: sticker.sticker.file_id})
         else:
             data[str(sticker.from_user.id)] = {sticker.sticker.file_unique_id: sticker.sticker.file_id}
-    elif (btn_classes.stick.flag[sticker.from_user.id] is not None and not btn_classes.stick.flag[sticker.from_user.id]
+    elif (btn_classes.stick.flag[sticker.from_user.id] is not None
+          and not btn_classes.stick.flag[sticker.from_user.id]
           and sticker.sticker.file_unique_id in data[str(sticker.from_user.id)]):
         del data[str(sticker.from_user.id)][sticker.sticker.file_unique_id]
     if not data[str(sticker.from_user.id)]:

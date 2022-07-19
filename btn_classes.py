@@ -13,8 +13,10 @@ class Notify:
     def __init__(self):
         self.flag_for_sending = {}
         self.already_get = {}
+        self.flag_location = {}
 
     async def local_time(self, bot, message):
+        self.flag_location[message.chat.id] = True
         conn = psycopg2.connect(db_conn.name, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
@@ -28,6 +30,7 @@ class Notify:
 
     async def turn_on_notif(self, bot, message):
         db_conn.stack_write_db_task[message.chat.id] = False
+        self.flag_location[message.chat.id] = True
         markup = types.InlineKeyboardMarkup(row_width=6)
         times = []
         for time in [f'0{i}:00' if i < 10 else f'{i}:00' for i in range(0, 24)]:
@@ -40,7 +43,8 @@ class Notify:
     async def turn_off_notif(self, bot, message):
         db_conn.stack_write_db_task[message.chat.id] = False
         self.flag_for_sending[message.chat.id] = False
-        await bot.send_message(message.from_user.id, 'Супер, уведомления выключены!')
+        markup = init_btns()
+        await bot.send_message(message.from_user.id, 'Супер, уведомления выключены!', reply_markup=markup)
         await stick.send_stickers(bot, message)
 
 
@@ -201,6 +205,7 @@ class DataBase:
 class Stickers:
     def __init__(self):
         self.flag = {}
+        self.stick_sending = {}
 
     async def send_stickers(self, bot, message):
         chat_id = message if isinstance(message, int) else message.chat.id
@@ -228,11 +233,13 @@ class Stickers:
                                reply_markup=markup)
 
     async def add_stick(self, bot, message):
+        self.stick_sending[message.chat.id] = True
         db_conn.stack_write_db_task[message.chat.id] = False
         self.flag[message.chat.id] = True
         await self.add_del(bot, message)
 
     async def del_stick(self, bot, message):
+        self.stick_sending[message.chat.id] = True
         db_conn.stack_write_db_task[message.chat.id] = False
         self.flag[message.chat.id] = False
         await self.add_del(bot, message)
@@ -240,7 +247,12 @@ class Stickers:
     async def stop_stick(self, bot, message):
         markup = init_btns()
         db_conn.stack_write_db_task[message.chat.id] = False
-        await bot.send_message(message.from_user.id, 'Ваш набор стикеров обновился!', reply_markup=markup)
+        if self.stick_sending[message.chat.id]:
+            await bot.send_message(message.from_user.id, 'Ваш набор стикеров обновился!', reply_markup=markup)
+        else:
+            await bot.send_message(message.from_user.id, 'Эта кнопка действуют только после "add_stickers"'
+                                                         ' и "del_stickers"')
+        self.stick_sending[message.chat.id] = False
 
 
 def open_file(json_file):
