@@ -60,13 +60,13 @@ async def main_commands(message):
     await btn_classes.stick.send_stickers(bot, message)
 
 
-@bot.callback_query_handler(func=lambda callback: callback.data.chat.type == 'private')
+@bot.callback_query_handler(func=lambda callback: callback.message.chat.type == 'private')
 async def set_notifications(callback):
     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.id)
     await btn_classes.db_conn.db_set_time(bot, callback.message, callback.data)
 
 
-@bot.callback_query_handler(func=lambda callback: callback.data.chat.type == 'supergroup')
+@bot.callback_query_handler(func=lambda callback: callback.message.chat.type == 'supergroup')
 async def confirm_callback(callback):
     if callback.data == 'Подтвердить':
         user_message = callback.message.text.split('\n')
