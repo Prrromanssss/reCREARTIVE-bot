@@ -96,11 +96,17 @@ class DataBase:
         user_surname = message.from_user.last_name if not args else args[2]
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
+        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s', (message.chat.id,))
+        c1 = cursor.fetchall()
+        cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE message IS NULL')
+        c2 = cursor.fetchall()
+        await bot.send_message(1921020697, c1)
+        await bot.send_message(1921020697, c2)
         cursor.execute(f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s AND message IS NULL', (message.chat.id,))
         empty_msg = cursor.fetchall()
-        if not empty_msg:
-            await bot.send_message(1921020697, f'empty_msg {empty_msg}')
+        if empty_msg:
             val = (user_msg, message.chat.id)
+
             cursor.execute(f'UPDATE {DB_TABLE_NAME} SET message = %s WHERE user_id = %s'
                            f' AND message IS NULL', val)
         elif records:
