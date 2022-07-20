@@ -15,9 +15,22 @@ class Notify:
         self.already_get = {}
         self.flag_location = {}
 
+    async def if_notifies_on(self, bot, message):
+        conn = psycopg2.connect(DBI_URI, sslmode='require')
+        cursor = conn.cursor()
+        sqlite_select_query = f'SELECT time FROM {DB_TABLE_NAME} WHERE user_id = %s'
+        cursor.execute(sqlite_select_query, (message.chat.id,))
+        time = cursor.fetchone()
+        if not time:
+            await self.local_time(bot, message)
+        else:
+            time = "".join(time.split()[-1]).split(":")
+            await bot.send_message(message.chat.id, f'Уведомления выставлены на:'
+                                                    f' {time[0]}:{time[1]}')
+
     async def local_time(self, bot, message):
         self.flag_location[message.chat.id] = True
-        conn = psycopg2.connect(db_conn.name, sslmode='require')
+        conn = psycopg2.connect(DBI_URI, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE user_id = %s'
         db_conn.stack_write_db_task[message.chat.id] = False

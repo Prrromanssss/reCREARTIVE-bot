@@ -13,7 +13,7 @@ useful_msg = {'/get_task': btn_classes.db_conn.db_get_task,
               '/write_task': btn_classes.db_conn.db_before_write_task,
               '/confirm': btn_classes.db_conn.db_confirm_task,
               '/not_confirm': btn_classes.db_conn.db_not_confirm_task,
-              '/notify': btn_classes.notifies.local_time,
+              '/notify': btn_classes.notifies.if_notifies_on,
               '/not_notify': btn_classes.notifies.turn_off_notif,
               '/stickers': btn_classes.stick.turn_stick,
               '/add_stickers': btn_classes.stick.add_stick,
@@ -46,7 +46,7 @@ async def main_commands(message):
                '"confirm" и "not_confirm" используются после кнопки "write_task".\n\n' \
                '<strong>Уведомления</strong>\n' \
                '/notify - настроить уведомления (ты же не хочешь, чтобы мы тебя разбудили? настрой' \
-               ' часовой пояс и время отправки уведомлений)\n'\
+               ' часовой пояс и время отправки уведомлений) или узнать о уже выбранном времени\n'\
                '/not_notify - выключить уведомления (после этого уведомления будут выключены)\n\n' \
                '<strong>Стикеры</strong>\n' \
                '/stickers - настроить любимые стикеры (данные стикеры будут приходить вместе'\
