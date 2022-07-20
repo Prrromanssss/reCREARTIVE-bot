@@ -19,7 +19,7 @@ class Notify:
         markup = markup = types.ReplyKeyboardMarkup()
         markup.add(types.KeyboardButton('/notify'))
         markup.add(types.KeyboardButton('/exist_notify'))
-        await bot.send_message(message.chat.id, 'Вы хотите настроить уведомления или узнать о существующих',
+        await bot.send_message(message.chat.id, 'Вы хотите настроить уведомления или узнать о существующих?',
                                reply_markup=markup)
 
     async def existing_notifies(self, bot, message):
@@ -31,12 +31,14 @@ class Notify:
         cursor.execute(sqlite_select_query, (message.chat.id,))
         time = cursor.fetchone()[0]
         if not time:
-            await bot.send_message(message.chat.id, 'У вас не выставлены никакие уведомления. Давайте это исправим!')
+            await bot.send_message(message.chat.id, 'У вас не выставлены никаких уведомлений. Давайте это исправим!')
             await self.local_time(bot, message)
         else:
+            markup = init_btns()
             time = "".join(time.split()[-1]).split(":")
             await bot.send_message(message.chat.id, f'Уведомления выставлены на:'
-                                                    f' {time[0]}:{time[1]}')
+                                                    f' {time[0]}:{time[1]}', reply_markup=markup)
+            await stick.send_stickers(bot, message)
 
     async def local_time(self, bot, message):
         self.flag_location[message.chat.id] = True
