@@ -15,13 +15,23 @@ class Notify:
         self.already_get = {}
         self.flag_location = {}
 
-    async def if_notifies_on(self, bot, message):
+    async def notify_settings(self, bot, message):
+        markup = markup = types.ReplyKeyboardMarkup()
+        markup.add(types.KeyboardButton('/notify'))
+        markup.add(types.KeyboardButton('/exist_notify'))
+        await bot.send_message(message.chat.id, 'Вы хотите настроить уведомления или узнать о существующих',
+                               reply_markup=markup)
+
+    async def existing_notifies(self, bot, message):
+        markup = types.ReplyKeyboardMarkup()
+        markup.add(types.KeyboardButton('no'))
         conn = psycopg2.connect(DBI_URI, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'SELECT time FROM {DB_TABLE_NAME} WHERE user_id = %s'
         cursor.execute(sqlite_select_query, (message.chat.id,))
-        time = cursor.fetchone()
+        time = cursor.fetchone()[0]
         if not time:
+            await bot.send_message(message.chat.id, 'У вас не выставлены никакие уведомления. Давайте это исправим!')
             await self.local_time(bot, message)
         else:
             time = "".join(time.split()[-1]).split(":")
@@ -288,9 +298,9 @@ def init_btns():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('/write_task')
     btn2 = types.KeyboardButton('/get_task')
-    btn3 = types.KeyboardButton('/notify')
-    btn4 = types.KeyboardButton('/stickers')
-    btn5 = types.KeyboardButton('/not_notify')
+    btn3 = types.KeyboardButton('/notify_settings')
+    btn4 = types.KeyboardButton('/not_notify')
+    btn5 = types.KeyboardButton('/stickers')
     btn6 = types.KeyboardButton('/help')
     markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
     return markup
