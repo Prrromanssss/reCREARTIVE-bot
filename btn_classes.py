@@ -85,7 +85,7 @@ class DataBase:
         self.stack_write_db_task[chat_id] = False
         conn = psycopg2.connect(self.name, sslmode='require')
         cursor = conn.cursor()
-        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} ORDER BY RANDOM() LIMIT 1;'
+        sqlite_select_query = f'SELECT * FROM {DB_TABLE_NAME} WHERE message IS NOT NULL ORDER BY RANDOM() LIMIT 1;'
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
         markup = init_btns()
@@ -259,7 +259,10 @@ class Stickers:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('/stop_stickers')
         markup.add(btn1)
-        await bot.send_message(message.from_user.id, 'Присылайте стикеры, как закончите нажмите кнопку "/stop_stickers"',
+        await bot.send_message(message.from_user.id, 'Присылайте стикеры, как закончите нажмите кнопку "/stop_stickers".\n'
+                                                     'Если у вас не работает кнопка выбора стикеров на клавиатуре ввода,'
+                                                     'пришлите их нам с компьютера. Такая проблема может возникать на iPhone'
+                               ,
                                reply_markup=markup)
         await self.send_stickers(bot, message)
 
