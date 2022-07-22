@@ -16,11 +16,12 @@ class Notify:
         self.flag_location = {}
 
     async def notify_settings(self, bot, message):
-        markup = markup = types.ReplyKeyboardMarkup()
+        markup = types.ReplyKeyboardMarkup()
         markup.add(types.KeyboardButton('/notify'))
         markup.add(types.KeyboardButton('/exist_notify'))
         await bot.send_message(message.chat.id, 'Вы хотите настроить уведомления или узнать о существующих?',
                                reply_markup=markup)
+        await stick.send_stickers(bot, message)
 
     async def existing_notifies(self, bot, message):
         markup = types.ReplyKeyboardMarkup()
