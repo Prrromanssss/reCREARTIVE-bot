@@ -52,15 +52,19 @@ P.s. : By the way, you can throw us your favorite stickers to make our communica
 
 After writing the task, it will be sent to the admins for confirmation or not.
 
-* admin confirmation
+* admin confirmation in admin chat
 
 ![Image of the "admin confirmation in the admin group"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_confirm_group.png)
 
+* admin confirmation in user chat
+
  ![Image of the "admin confirmation"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_confirm.png)
 
- * admin non-confirmation
+ * admin non-confirmation in admin chat
 
 ![Image of the "admin non-confirmation in the admin group"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_not_confirm_group.png)
+
+ * admin non-confirmation in user chat
 
  ![Image of the "admin non-confirmation"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_not_confirm.png)
 
@@ -71,20 +75,25 @@ After writing the task, it will be sent to the admins for confirmation or not.
 * __/notify_settings__ - set up notifications (you don’t want us to wake you up, do you? Set up the time zone and time for sending notifications) or find out about the time already selected
 ![Image of the "notify_settingd"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify_settings.png)
 * __/notify__ - enable notifications
-![Image of the "notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify.png)
+![Image of the "notify number 1"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify_1.png)
+
+![Image of the "notify number 2"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify_2.png)
 * __/exist_notify__ - find out about existing notifications (and suddenly
- have you set everything up yet? )
- ![Image of the "exist_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/exist_notify.png)
+have you set everything up yet? )
+![Image of the "exist_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/exist_notify.png)
 * __/not_notify__ - turn off notifications (after that, notifications will be turned off)
- ![Image of the "not_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/not_notify.png)
+![Image of the "not_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/not_notify.png)
 
 ### Stickers
 * __/stickers__ - set up your favorite stickers (these stickers will come with other messages)
+![Image of the "stickers"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/stickers.png)
 
 * __/add_stickers__ - add stickers (after clicking this button stickers will be added to your collection
 * __/del_stickers__ - remove stickers (when you get tired of them)
+![Image of the "add/del_stickers"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/add_stickers.png)
 * __/stop_stickers__ - stop sending stickers (when you want
 talk seriously). Used after buttons "add_stickers" and "del_stickers".
+![Image of the "stop_stickers"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/stop_stickers.png)
 
 
 ## Deployment instructions
