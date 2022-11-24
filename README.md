@@ -78,6 +78,8 @@ After writing the task, it will be sent to the admins for confirmation or not.
 ![Image of the "notify number 1"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify_1.png)
 
 ![Image of the "notify number 2"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify_2.png)
+
+![Image of the "notify number 3"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/notify_3.png)
 * __/exist_notify__ - find out about existing notifications (and suddenly
 have you set everything up yet? )
 ![Image of the "exist_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/exist_notify.png)
