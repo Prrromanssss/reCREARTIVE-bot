@@ -2,13 +2,13 @@ import datetime as dt
 import json
 from random import choice
 
-import psycopg2
 import pytz
 from pytz import timezone
 from telebot import types
 from tzwhere import tzwhere as tz
 
-from settings import CHAT_ID_MODERATE, DB_TABLE_NAME, DBI_URI
+from models import Model
+from settings import CHAT_ID_MODERATE
 
 
 class Notify:
@@ -31,14 +31,9 @@ class Notify:
     async def existing_notifies(self, bot, message):
         markup = types.ReplyKeyboardMarkup()
         markup.add(types.KeyboardButton('no'))
-        conn = psycopg2.connect(DBI_URI, sslmode='require')
-        cursor = conn.cursor()
-        sqlite_select_query = f'''SELECT time
-                                  FROM {DB_TABLE_NAME}
-                                  WHERE user_id = %s
-                               '''
-        cursor.execute(sqlite_select_query, (message.chat.id,))
-        time = cursor.fetchone()[0]
+
+        time = Model.select_time(message)
+
         if not time:
             await bot.send_message(
                 message.chat.id,
@@ -58,14 +53,9 @@ class Notify:
 
     async def local_time(self, bot, message):
         self.flag_location[message.chat.id] = True
-        conn = psycopg2.connect(DBI_URI, sslmode='require')
-        cursor = conn.cursor()
-        sqlite_select_query = f'''SELECT *
-                                  FROM {DB_TABLE_NAME}
-                                  WHERE user_id = %s
-                               '''
+
         db_conn.stack_write_db_task[message.chat.id] = False
-        cursor.execute(sqlite_select_query, (message.chat.id,))
+
         markup = types.ReplyKeyboardRemove()
         text = ('Пришлите нам свое местоположение. \n\n'
                 'P.s.: "скрепка" в левом нижнем углу'
@@ -107,24 +97,16 @@ class Notify:
 
 
 class DataBase:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         self.msgs = {}
         self.stack_write_db_task = {}
 
     async def db_get_task(self, bot, message):
         chat_id = message if isinstance(message, int) else message.chat.id
         self.stack_write_db_task[chat_id] = False
-        conn = psycopg2.connect(self.name, sslmode='require')
-        cursor = conn.cursor()
-        sqlite_select_query = f'''SELECT *
-                                  FROM {DB_TABLE_NAME}
-                                  WHERE message IS NOT NULL
-                                  ORDER BY RANDOM()
-                                  LIMIT 1;
-                               '''
-        cursor.execute(sqlite_select_query)
-        records = cursor.fetchall()
+
+        records = Model.select_random_task()
+
         markup = init_btns()
         try:
             surname = records[0][3] if records[0][3] else ''
@@ -134,7 +116,6 @@ class DataBase:
                 else records[0][2] + ' ' + surname
                 )
             text = f'Задание от {user}:\n\n{records[0][5]}'
-            conn.commit()
 
             await bot.send_message(chat_id, text, reply_markup=markup)
             await bot.send_message(chat_id, choice(set_of_funny_msg))
@@ -158,37 +139,21 @@ class DataBase:
         await stick.send_stickers(bot, message)
 
     async def db_write_task(self, bot, message, *args):
-        conn = psycopg2.connect(self.name, sslmode='require')
-        cursor = conn.cursor()
-        sqlite_select_query = f'''SELECT *
-                                  FROM {DB_TABLE_NAME}
-                                  WHERE user_id = %s
-                               '''
         user_id = message.from_user.id if not args else args[0]
-        cursor.execute(sqlite_select_query, (user_id,))
-        records = cursor.fetchall()
+
+        records = Model.select_all(user_id)
+
         user_name = message.from_user.first_name if not args else args[1]
         user_surname = message.from_user.last_name if not args else args[2]
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
-        cursor.execute(
-            f'''SELECT *
-                FROM {DB_TABLE_NAME}
-                WHERE user_id = %s AND message IS NULL
-                ''',
-            (user_id,)
-            )
-        empty_msg = cursor.fetchall()
-        if empty_msg:
-            val = (user_msg, user_id)
 
-            cursor.execute(
-                f'''UPDATE {DB_TABLE_NAME}
-                    SET message = %s
-                    WHERE user_id = %s'
-                    AND message IS NULL''',
-                val,
-                )
+        empty_msg = Model.select_empty_message(user_id)
+
+        if empty_msg:
+
+            Model.update_message(user_id=user_id, user_msg=user_msg)
+
         elif records:
             utc = records[0][-2]
             time = (
@@ -197,6 +162,7 @@ class DataBase:
                             *map(int, ''.join(records[0][-1].split()[1])
                             .split(':'))).strftime('%Y-%m-%d %H:%M:%S')
                     )
+
             val = (
                 user_id,
                 user_name,
@@ -206,27 +172,11 @@ class DataBase:
                 utc,
                 time
                 )
-            cursor.execute(
-                f'''INSERT INTO {DB_TABLE_NAME}
-                        (user_id, "user_name",
-                        "user_surname", "username",
-                        "message", utc, time)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ''',
-                val
-                )
+
+            Model.insert_all(val)
         else:
             val = (user_id, user_name, user_surname, username, user_msg)
-            cursor.execute(
-                f'''INSERT INTO {DB_TABLE_NAME}
-                        (user_id, "user_name", "user_surname",
-                        "username", "message")
-                    VALUES
-                        (%s, %s, %s, %s, %s)''',
-                val
-                )
-
-        conn.commit()
+            Model.insert_exclude_time(val)
         self.stack_write_db_task[user_id] = False
         markup = init_btns()
         await bot.send_message(
@@ -238,15 +188,10 @@ class DataBase:
         await stick.send_stickers(bot, user_id)
 
     async def db_set_time(self, bot, message, data):
-        conn = psycopg2.connect(self.name, sslmode='require')
-        cursor = conn.cursor()
-        sqlite_select_query = f'''SELECT *
-                                  FROM {DB_TABLE_NAME}
-                                  WHERE user_id = %s
-                               '''
-        cursor.execute(sqlite_select_query, (message.chat.id,))
 
-        utc = int(cursor.fetchall()[0][-2])
+        records = Model.select_all(message.chat.id)
+
+        utc = int(records[0][-2])
         differ_time = dt.timedelta(hours=abs(utc))
         dt_now = dt.datetime.now(timezone('Europe/Moscow'))
         dt_now = dt.datetime(
@@ -261,19 +206,15 @@ class DataBase:
         else:
             dt_time = dt_now - differ_time
         dt_time = dt_time.strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute(
-            f'UPDATE {DB_TABLE_NAME} SET time = %s WHERE user_id = %s',
-            (dt_time, message.chat.id)
-            )
-        conn.commit()
+
+        Model.update_time(dt_time, message.chat.id)
+
         markup = init_btns()
         text = 'Время выставлено: ' + data
         await bot.send_message(message.chat.id, text, reply_markup=markup)
         await stick.send_stickers(bot, message)
 
     async def db_update_task(self, bot, message):
-        conn = psycopg2.connect(self.name, sslmode='require')
-        cursor = conn.cursor()
         lng = message.location.longitude
         lat = message.location.latitude
         tzwhere = tz.tzwhere()
@@ -283,31 +224,19 @@ class DataBase:
                       (timezone_str).hour - dt.datetime.now
                       (timezone('Europe/Moscow')).hour)
                       )
-        sqlite_select_query = f'''SELECT *
-                                  FROM {DB_TABLE_NAME}
-                                  WHERE user_id = %s
-                               '''
-        cursor.execute(sqlite_select_query, (message.chat.id,))
-        if not cursor.fetchall():
+
+        records = Model.select_all(message.chat.id)
+
+        if not records:
             user_id = message.from_user.id
             user_name = message.from_user.first_name
             user_surname = message.from_user.last_name
             username = message.from_user.username
-            sqlite_insert_query = f'''INSERT INTO {DB_TABLE_NAME}
-                                          (user_id, "user_name",
-                                          "user_surname", "username")
-                                      VALUES'
-                                          (%s, %s, %s, %s)
-                                   '''
-            cursor.execute(
-                sqlite_insert_query,
-                (user_id, user_name, user_surname, username)
-                )
-        cursor.execute(
-            f'UPDATE {DB_TABLE_NAME} SET utc = %s WHERE user_id = %s',
-            (differ_int, message.chat.id)
-            )
-        conn.commit()
+
+            Model.insert_exclude_time_message(user_id, user_name, user_surname, username)
+
+        Model.update_utc(differ_int, message.chat.id)
+
         await bot.send_message(message.chat.id, 'Ваша геопозиция обновлена!')
         await notifies.turn_on_notif(bot, message)
 
@@ -455,7 +384,7 @@ def init_btns():
     return markup
 
 
-db_conn = DataBase(DBI_URI)
+db_conn = DataBase()
 stick = Stickers()
 notifies = Notify()
 set_of_funny_msg = ['Удачи в выполнении!', 'Надеюсь у тебя все получится!',
