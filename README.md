@@ -17,6 +17,7 @@
   * [.Env](#4-generate-file-with-virtual-environment-variables-env)
   * [Running](#5-running-project)
   * [Deployment](#6-deployment)
+* [Examples](#examples)
 
 
 
@@ -148,3 +149,6 @@ python main.py
 6.1 This bot was deployed to heroku, but from November 28, free heroku Dynos no longer available :(
 
 
+## Examples
+
+You can find some examples in the examples folder.
