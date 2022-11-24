@@ -42,21 +42,33 @@ P.s. : By the way, you can throw us your favorite stickers to make our communica
 
 ### Tasks
 * __/get_task__ - get the task
+![Image of the "get_task"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/get_task.png)
 * __/write_task__- send the task that another participant will receive
+![Image of the "write_task"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/write_task.png)
 * __/confirm__ - confirm the task (what if you made a mistake :) )
+![Image of the "confirm"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/confirm.png)
 * __/not_confirm__ - cancel the task recording (and really made a mistake :( )
+![Image of the "not_confirm"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/not_confirm.png)
+
+After writing the task, it will be sent to the admins for confirmation or not
+
 
 "confirm" and "not_confirm" used after button "write_task".
 
 ### Notifications
 * __/notify_settings__ - set up notifications (you don’t want us to wake you up, do you? Set up the time zone and time for sending notifications) or find out about the time already selected
+![Image of the "notify_settingd"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/notify_settings.png)
 * __/notify__ - enable notifications
+![Image of the "notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/notify.png)
 * __/exist_notify__ - find out about existing notifications (and suddenly
  have you set everything up yet? )
+ ![Image of the "exist_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/exist_notify.png)
 * __/not_notify__ - turn off notifications (after that, notifications will be turned off)
+ ![Image of the "not_notify"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/main/media/not_notify.png)
 
 ### Stickers
 * __/stickers__ - set up your favorite stickers (these stickers will come with other messages)
+
 * __/add_stickers__ - add stickers (after clicking this button stickers will be added to your collection
 * __/del_stickers__ - remove stickers (when you get tired of them)
 * __/stop_stickers__ - stop sending stickers (when you want
@@ -111,3 +123,5 @@ python main.py
 ### 6. Deployment
 
 6.1 This bot was deployed to heroku, but from November 28, free heroku Dynos no longer available :(
+
+
