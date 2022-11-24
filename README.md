@@ -50,7 +50,19 @@ P.s. : By the way, you can throw us your favorite stickers to make our communica
 * __/not_confirm__ - cancel the task recording (and really made a mistake :( )
 ![Image of the "not_confirm"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/not_confirm.png)
 
-After writing the task, it will be sent to the admins for confirmation or not
+After writing the task, it will be sent to the admins for confirmation or not.
+
+* admin confirmation
+
+![Image of the "admin confirmation in the admin group"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_confirm_group.png)
+
+ ![Image of the "admin confirmation"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_confirm.png)
+
+ * admin non-confirmation
+
+![Image of the "admin non-confirmation in the admin group"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_not_confirm_group.png)
+
+ ![Image of the "admin non-confirmation"](https://github.com/Prrromanssss/reCREARTIVE_bot/raw/master/media/admin_not_confirm.png)
 
 
 "confirm" and "not_confirm" used after button "write_task".
