@@ -22,52 +22,45 @@
 
 
 ## About
-Привет, тебя встречает команда __reCREARTIVE__!
+Hi, the reCREARTIVE team is waiting for you!
 
-Мы создали бота, который будет тренировать твою креативность
-и делиться с тобой взглядом на мир разных художников.
+We have created a bot that will train your creativity and share with you a look at the world of different artists.
 
-Решай задания или просто посмотри на мир так, как это делали
-разные художники, а потом
-попробуй воспользоваться их методами.
+Solve tasks or just look at the world the way different artists did, and then try to use their methods.
 
-Нажимай кнопку, чтобы получить задание на день или придумай
-свое и напиши его нам.Кто знает, кому оно попадется  :)
+Press the button to get a task for the day or come up with your own and write it to us. Who knows who will get it :)
 
-Так же, если вы хотите получать каждый день новое задание
-просто нажмите кнопку "notify", и вы будете становиться
-креативными каждый день
+Also, if you want to receive a new task every day, just click the "notify" button, and you will become creative every day.
 
-P.s. : Кстати, можешь накидать нам любимых стикеров, чтобы наше общение
-было веселее!
+P.s. : By the way, you can throw us your favorite stickers to make our communication more fun!
 
 
 
 ## Functional
 
-* __/help__ - помощь (узнать доступные команды)
+* __/help__ - help (learn available commands)
 
 ### Tasks
-* __/get_task__ - получить задание
-* __/write_task__- прислать задание, которое получит другой участник
-* __/confirm__ - подтвердить задание (а вдруг вы ошиблись :) )
-* __/not_confirm__ - отменить запись задания (и вправду ошиблись :( )
+* __/get_task__ - get the task
+* __/write_task__- send the task that another participant will receive
+* __/confirm__ - confirm the task (what if you made a mistake :) )
+* __/not_confirm__ - cancel the task recording (and really made a mistake :( )
 
-"confirm" и "not_confirm" используются после кнопки "write_task".
+"confirm" and "not_confirm" used after button "write_task".
 
 ### Notifications
-* __/notify_settings__ - настроить уведомления (ты же не хочешь, чтобы мы тебя разбудили? Настрой часовой пояс и время отправки уведомлений) или узнать о уже выбранном времени
-* __/notify__ - включить уведомления
-* __/exist_notify__ - узнать о существующих уведомлениях (а вдруг
- ты все уже настроил? )
-* __/not_notify__ - выключить уведомления (после этого уведомления будут выключены)
+* __/notify_settings__ - set up notifications (you don’t want us to wake you up, do you? Set up the time zone and time for sending notifications) or find out about the time already selected
+* __/notify__ - enable notifications
+* __/exist_notify__ - find out about existing notifications (and suddenly
+ have you set everything up yet? )
+* __/not_notify__ - turn off notifications (after that, notifications will be turned off)
 
 ### Stickers
-* __/stickers__ - настроить любимые стикеры (данные стикеры будут приходить вместе с остальными сообщениями)
-* __/add_stickers__ - добавить стикеры (после нажатия данной кнопки стикеры будут добавлены в вашу коллекцию)
-* __/del_stickers__ - удалить стикеры (когда они тебе надоели)
-* __/stop_stickers__ - остановить отправку стикеров (когда хочется
-поговорить серьезнее). Используется после кнопок "add_stickers" и "del_stickers".
+* __/stickers__ - set up your favorite stickers (these stickers will come with other messages)
+* __/add_stickers__ - add stickers (after clicking this button stickers will be added to your collection
+* __/del_stickers__ - remove stickers (when you get tired of them)
+* __/stop_stickers__ - stop sending stickers (when you want
+talk seriously). Used after buttons "add_stickers" and "del_stickers".
 
 
 ## Deployment instructions
@@ -114,7 +107,6 @@ pip install -r requirements.txt
 ```commandline
 python main.py
 ```
-***
 
 ### 6. Deployment
 

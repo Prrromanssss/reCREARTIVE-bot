@@ -140,7 +140,6 @@ class DataBase:
 
     async def db_write_task(self, bot, message, *args):
         user_id = message.from_user.id if not args else args[0]
-
         records = Model.select_all(user_id)
 
         user_name = message.from_user.first_name if not args else args[1]
@@ -148,10 +147,9 @@ class DataBase:
         username = message.from_user.username if not args else args[3]
         user_msg = message.text if not args else args[4]
 
-        empty_msg = Model.select_empty_message(user_id)
+        empty_msg = Model.select_empty_message(user_id, bot)
 
         if empty_msg:
-
             Model.update_message(user_id=user_id, user_msg=user_msg)
 
         elif records:
@@ -233,7 +231,12 @@ class DataBase:
             user_surname = message.from_user.last_name
             username = message.from_user.username
 
-            Model.insert_exclude_time_message(user_id, user_name, user_surname, username)
+            Model.insert_exclude_time_message(
+                user_id,
+                user_name,
+                user_surname,
+                username
+            )
 
         Model.update_utc(differ_int, message.chat.id)
 

@@ -46,13 +46,13 @@ class Model:
         return records
 
     @staticmethod
-    def select_empty_message(user_id):
+    def select_empty_message(user_id, bot):
         conn = psycopg2.connect(DBI_URI, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'''SELECT *
                                   FROM {DB_TABLE_NAME}
                                   WHERE user_id = %s AND message IS NULL
-                               ''',
+                               '''
         cursor.execute(sqlite_select_query, (user_id,))
         empty_msg = cursor.fetchall()
         conn.commit()
@@ -116,7 +116,12 @@ class Model:
         conn.commit()
 
     @staticmethod
-    def insert_exclude_time_message(user_id, user_name, user_surname, username):
+    def insert_exclude_time_message(
+        user_id,
+        user_name,
+        user_surname,
+        username
+    ):
         conn = psycopg2.connect(DBI_URI, sslmode='require')
         cursor = conn.cursor()
         sqlite_select_query = f'''INSERT INTO {DB_TABLE_NAME}
@@ -125,5 +130,8 @@ class Model:
                                   VALUES'
                                       (%s, %s, %s, %s)
                                    '''
-        cursor.execute(sqlite_select_query, (user_id, user_name, user_surname, username))
+        cursor.execute(
+            sqlite_select_query,
+            (user_id, user_name, user_surname, username)
+        )
         conn.commit()
