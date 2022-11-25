@@ -6,7 +6,7 @@
 
 ## Contens
 * [About](#about)
-* [Functonal](#functional)
+* [Functional](#functional)
   * [Tasks](#tasks)
   * [Notifications](#notifications)
   * [Stickers](#stickers)
