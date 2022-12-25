@@ -1,7 +1,7 @@
 # reCREARTIVE
 
 
-![flake8 test](https://github.com/Prrromanssss/reCREARTIVE_bot/actions/workflows/python-package.yml/badge.svg)
+![flake8 test](https://github.com/Prrromanssss/reCREARTIVE-bot/actions/workflows/python-package.yml/badge.svg)
 
 
 ## Contens
